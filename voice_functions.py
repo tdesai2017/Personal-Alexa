@@ -1,0 +1,75 @@
+# import speech_recognition as sr
+
+# r = sr.Recognizer()
+# with sr.Microphone() as source:
+#     print("Speak Anything :")
+#     audio = r.listen(source)
+#     try:
+#         text = r.recognize_google(audio)
+#         print("You said : {}".format(text))
+#     except:
+#         print("Sorry could not recognize what you said")
+
+
+
+
+# while True: 
+
+#     command = input('Please give a command: \n')
+
+#     if command == 'clear':
+#         with open('/mnt/c/Users/icett/OneDrive/Documents/all_things_code/projects/voice_recognition/input.txt', 'w') as f:
+#             f.write('')
+
+#     elif command == 'append':
+#         write_command = input('What do you want to write?:\n')
+#         with open('/mnt/c/Users/icett/OneDrive/Documents/all_things_code/projects/voice_recognition/input.txt', 'a') as f:
+#             f.write(write_command)
+#             f.write("\n")
+
+#     elif command == 'read':
+#         with open('/mnt/c/Users/icett/OneDrive/Documents/all_things_code/projects/voice_recognition/input.txt', 'r') as f:
+#             f_contents = f.read()
+#             print('XXXXXXXX\n' + f_contents + '\nXXXXXXXX')
+
+#     else:
+#         print('exited')
+#         break
+
+
+
+
+import requests
+
+# URL = "http://127.0.0.1:8000/home/receive_delete/"
+
+class VoiceRobot:
+
+    def __init__(self):
+        pass
+
+    def add (self, item):
+        payload = {'add': item}
+        url = 'http://127.0.0.1:8000/home/receive_add/'
+        r = requests.post(url, data= payload)
+        print(r.status_code, r.reason)
+        # print(r.text[:300] + '...')
+
+    def delete (self, item):
+        payload = {'delete': item}
+        url = 'http://127.0.0.1:8000/home/receive_delete/'
+        r = requests.post(url, data = payload)
+        print(r.status_code, r.reason)
+        # print(r.text[:300] + '...')
+
+
+
+
+
+
+
+
+
+
+
+
