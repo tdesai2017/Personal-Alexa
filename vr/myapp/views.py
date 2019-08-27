@@ -16,20 +16,24 @@ def home(request):
 @csrf_exempt 
 def receive_add(request):
 	if request.method=='POST':
-		item = Item()
-		item.name = request.POST['add']
-		item.save()	
+		item_name = request.POST['add']
+		if (Item.objects.filter(name = item_name)):
+			messages.warning(request, 'There is already an input with this name')
+		else:
+			item = Item()
+			item.name = item_name
+			item.save()	
 	return HttpResponseRedirect(reverse('myapp:home'))
 
 
-
+@csrf_exempt 
 def receive_delete(request):
 	if request.method=='POST':
 		item_name = request.POST['delete']
 
 
 		if (Item.objects.filter(name = item_name)):
-			item_to_delete = Item.objects.filter(name = item_name)
+			item_to_delete = Item.objects.get(name = item_name)
 			item_to_delete.delete()
 
 		else:

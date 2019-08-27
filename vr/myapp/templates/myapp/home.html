@@ -24,6 +24,8 @@
         <br>
         {% endfor %}
 
+        <br>
+
         ADD:
         <form method = 'POST' action = "{% url 'myapp:receive_add' %}">
             {% csrf_token %}

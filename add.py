@@ -39,8 +39,21 @@
 
 import requests
 
+# client = requests.session()
+URL = "http://127.0.0.1:8000/home/receive_add/"
 
-r = requests.post("http://127.0.0.1:8000/home/receive_add/", data={'add': 'banana',})
+
+# # Retrieve the CSRF token first
+# client.get(URL)  # sets cookie
+# if 'csrftoken' in client.cookies:
+#     # Django 1.6 and up
+#     csrftoken = client.cookies['csrftoken']
+# else:
+#     # older versions
+#     csrftoken = client.cookies['csrf']
+
+payload = {'add': 'banana',} # 'csrfmiddlewaretoken': csrftoken}
+r = requests.post(URL, data= payload)
 print(r.status_code, r.reason)
 print(r.text[:300] + '...')
 
