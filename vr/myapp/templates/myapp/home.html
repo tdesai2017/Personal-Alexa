@@ -6,7 +6,37 @@
     </head>
     <body>
 
-        Henlo
+        {% for message in messages %}
+        <!-- <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button> -->
+            <br>
+            <span>{{message}}</span>
+        <!-- </div> -->
+        {% endfor %}
+
+        <br>
+        <br>
+
+        {% for item in items %}
+        {{ item.name }}
+        <br>
+        {% endfor %}
+
+        ADD:
+        <form method = 'POST' action = "{% url 'myapp:receive_add' %}">
+            {% csrf_token %}
+            <input type = 'text' name = 'add'>
+            <button type = 'submit'> Submit </button>
+        </form>
+
+        DELETE:
+        <form method = 'POST' action = "{% url 'myapp:receive_delete' %}">
+                {% csrf_token %}
+                <input type = 'text' name = 'delete'>
+                <button type = 'submit'> Submit </button>
+            </form>
 
        
 

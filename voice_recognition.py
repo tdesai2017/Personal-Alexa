@@ -13,31 +13,35 @@
 
 
 
-while True: 
+# while True: 
 
-    command = input('Please give a command: \n')
+#     command = input('Please give a command: \n')
 
-    if command == 'clear':
-        with open('/mnt/c/Users/icett/OneDrive/Documents/all_things_code/projects/voice_recognition/input.txt', 'w') as f:
-            f.write('')
+#     if command == 'clear':
+#         with open('/mnt/c/Users/icett/OneDrive/Documents/all_things_code/projects/voice_recognition/input.txt', 'w') as f:
+#             f.write('')
 
-    elif command == 'append':
-        write_command = input('What do you want to write?:\n')
-        with open('/mnt/c/Users/icett/OneDrive/Documents/all_things_code/projects/voice_recognition/input.txt', 'a') as f:
-            f.write(write_command)
-            f.write("\n")
+#     elif command == 'append':
+#         write_command = input('What do you want to write?:\n')
+#         with open('/mnt/c/Users/icett/OneDrive/Documents/all_things_code/projects/voice_recognition/input.txt', 'a') as f:
+#             f.write(write_command)
+#             f.write("\n")
 
-    elif command == 'read':
-        with open('/mnt/c/Users/icett/OneDrive/Documents/all_things_code/projects/voice_recognition/input.txt', 'r') as f:
-            f_contents = f.read()
-            print('XXXXXXXX\n' + f_contents + '\nXXXXXXXX')
+#     elif command == 'read':
+#         with open('/mnt/c/Users/icett/OneDrive/Documents/all_things_code/projects/voice_recognition/input.txt', 'r') as f:
+#             f_contents = f.read()
+#             print('XXXXXXXX\n' + f_contents + '\nXXXXXXXX')
 
-    else:
-        print('exited')
-        break
-
-
+#     else:
+#         print('exited')
+#         break
 
 
+import requests
+
+
+r = requests.post("http://127.0.0.1:8000/home/receive_add/", data={'add': 'banana',})
+print(r.status_code, r.reason)
+print(r.text[:300] + '...')
 
 

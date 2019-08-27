@@ -8,6 +8,7 @@ urlpatterns = [
 
 path('', views.home, name = 'home'),
 path('receive_add/', views.receive_add, name = 'receive_add'),
+path('receive_delete/', views.receive_delete, name = 'receive_delete'),
 
    
   
