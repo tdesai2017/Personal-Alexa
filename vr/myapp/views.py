@@ -18,7 +18,7 @@ def receive_add(request):
 	if request.method=='POST':
 		item_name = request.POST['add']
 		if (Item.objects.filter(name = item_name)):
-			messages.warning(request, 'There is already an input with this name')
+			messages.warning(request, 'There is already an input with the name "' + item_name + '"')
 		else:
 			item = Item()
 			item.name = item_name
@@ -37,7 +37,7 @@ def receive_delete(request):
 			item_to_delete.delete()
 
 		else:
-			messages.error(request, 'Sorry, there is no item with the name ' + item_name)
+			messages.error(request, 'Sorry, there is no item with the name "' + item_name + '"')
 
 		
 	return HttpResponseRedirect(reverse('myapp:home'))
