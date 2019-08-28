@@ -1,5 +1,4 @@
 body {background-color:;}
-.container-fluid {padding:50px;}
 .container{background-color:white;padding:50px;   }
 #title{font-family: 'Lobster', cursive;;}
 
@@ -7,3 +6,9 @@ body {background-color:;}
   float: none;
   margin: 0 auto;
   }
+
+
+.btn, input {
+  margin-left: 10px;
+}
+

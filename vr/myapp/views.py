@@ -21,7 +21,7 @@ def receive_add(request):
 			messages.warning(request, 'There is already an input with the name "' + item_name + '"')
 		else:
 			item = Item()
-			item.name = item_name
+			item.name = item_name.capitalize()
 			item.save()	
 	return HttpResponseRedirect(reverse('myapp:home'))
 
@@ -29,7 +29,7 @@ def receive_add(request):
 @csrf_exempt 
 def receive_delete(request):
 	if request.method=='POST':
-		item_name = request.POST['delete']
+		item_name = request.POST['delete'].capitalize()
 
 
 		if (Item.objects.filter(name = item_name)):
@@ -39,5 +39,13 @@ def receive_delete(request):
 		else:
 			messages.error(request, 'Sorry, there is no item with the name "' + item_name + '"')
 
+		
+	return HttpResponseRedirect(reverse('myapp:home'))
+
+
+@csrf_exempt 
+def receive_clear(request):
+	if request.method=='POST':
+		Item.objects.all().delete()
 		
 	return HttpResponseRedirect(reverse('myapp:home'))

@@ -62,6 +62,13 @@ class VoiceRobot:
         print(r.status_code, r.reason)
         # print(r.text[:300] + '...')
 
+    def clear (self):
+        payload = {}
+        url = 'http://127.0.0.1:8000/home/receive_clear/'
+        r = requests.post(url, data = payload)
+        print(r.status_code, r.reason)
+        # print(r.text[:300] + '...')
+
 
 
 

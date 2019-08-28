@@ -26,51 +26,65 @@
             </div>
             {% endfor %}
 
-            <div class="container-fluid">
-                    <div class="container">
-                        <h2 class="text-center" id="title" style = 'color: #42bcf4;'>
-                                Grocery List
-                        </h2>
-                         <hr>
-                        <div class="row">
-                        <div class="col-md-5 col-centered">
-                            
-                    
-                            <br>
-                            <br>
-                            
-                            <ol>
-                            {% for item in items %}
-                            <li>{{ item.name }}</li>
-                            <br>
-                            {% endfor %}
-                            </ol>
-                    
-                    
-                            Add:
-                            <form method = 'POST' action = "{% url 'myapp:receive_add' %}">
-                                {% csrf_token %}
-                                <input class = 'form-control'  type = 'text' name = 'add'>
-                                <br>
-                                <button class = 'btn btn-success' type = 'submit'> Submit </button>
-                            </form>
-                            <br>
-                            <br>
-                    
-                            Delete:
-                            <form method = 'POST' action = "{% url 'myapp:receive_delete' %}">
-                                    {% csrf_token %}
-                                    <input class = 'form-control' type = 'text' name = 'delete'>
-                                    <br>
-                                    <button class = 'btn btn-success' type = 'submit'> Submit </button>
-                                </form>
-                        </div>
-                        </div>
-                        </div>
-                        </div>
-        
+            
+
+    <div class="container-fluid" style = 'padding:50px'>
+        <div class = 'container'>
+            <h2 class="text-center" id="title" style = 'color: #42bcf4;'>
+                Grocery List
+            </h2>
+                <hr style = 'padding: 30px'>                     
+
+        <div class="row">
+            <div class="col-sm-6">
+
+            <strong style = 'margin-left: 10%'>To Buy:</strong>
+            <br>
+            <br>
+
+                <ol style = 'padding-left: 20%'>
+                {% for item in items %}
+                <li>{{ item.name }}</li>
+                <br>
+                {% endfor %}
+                </ol>
+            </div>
+
+            <div class="col-sm-6">
+                Add:
+                <form method = 'POST' action = "{% url 'myapp:receive_add' %}">
+                    {% csrf_token %}
+                    <input class = 'form-control'  type = 'text' name = 'add'>
                     <br>
+                    <button class = 'btn btn-success' type = 'submit'> Submit </button>
+                </form>
+                <br>
+                <br>
+    
+                Delete:
+                <form method = 'POST' action = "{% url 'myapp:receive_delete' %}">
+                    {% csrf_token %}
+                    <input class = 'form-control' type = 'text' name = 'delete'>
                     <br>
+                    <button class = 'btn btn-success' type = 'submit'> Submit </button>
+                </form>
+
+
+                <br>
+                <br>
+                Clear all:
+
+                <form method = 'POST' action = "{% url 'myapp:receive_clear' %}">
+                        {% csrf_token %}
+                        <br>
+                        <button class = 'btn btn-danger' type = 'submit'> Submit </button>
+                    </form>
+
+
+            </div>
+            </div>
+            </div>
+            </div>
 
      
 
