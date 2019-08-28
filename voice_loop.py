@@ -20,14 +20,17 @@ with sr.Microphone() as source:
 
 
 # For testing - keep in mind that anything before the last trigger word is ignored
-# text = ''
+# text = 'multi delete oranges'
 
-add_in_text = 'add' in text
-delete_in_text = 'delete' in text
-clear_in_text = 'clear all' in text
+add_in_text = 'add' in text and text.index('add') == 0
+delete_in_text = 'delete' in text and text.index('delete') == 0
+clear_in_text = 'clear' in text and text.index('clear') == 0
+multiadd_in_text = 'multi add' in text and text.index('multi add') == 0
+multidelete_in_text = 'multi delete' in text and text.index('multi delete') == 0
+
 
 # Command add
-if add_in_text and not (clear_in_text or delete_in_text):
+if add_in_text:
 
     command = 'add'
     voice_input = text[text.index(command) + len(command): len(text)].strip() 
@@ -37,7 +40,7 @@ if add_in_text and not (clear_in_text or delete_in_text):
     mytext = 'Added' + voice_input
 
 # Command delete
-elif delete_in_text and not (add_in_text or clear_in_text):
+elif delete_in_text:
 
     command = 'delete'
     voice_input = text[text.index(command) + len(command): len(text)].strip()
@@ -47,10 +50,29 @@ elif delete_in_text and not (add_in_text or clear_in_text):
     mytext = 'Deleted' + voice_input
             
 #Command clear
-elif clear_in_text and not (add_in_text or delete_in_text):
+elif clear_in_text:
     voice_robot = VoiceRobot()
     voice_robot.clear()
     mytext = 'List cleared'
+
+# Command multiadd - will split words based on spaces
+elif multiadd_in_text:
+    # First two will be "multi" and "add", so I must remove those
+    list_of_items = text.split()[2:]
+    list_of_items = [item.capitalize() for item in list_of_items]
+    voice_robot = VoiceRobot()
+    voice_robot.multiadd(list_of_items)
+    mytext = text.replace('add', 'added') 
+
+# Command multidelete - will split words based on spaces
+elif multidelete_in_text:
+    # First two will be "multi" and "delete", so I must remove those
+    list_of_items = text.split()[2:]
+    list_of_items = [item.capitalize() for item in list_of_items]
+    voice_robot = VoiceRobot()
+    voice_robot.multidelete(list_of_items)
+    mytext = text.replace('delete', 'deleted') 
+
 
 # Invalid input  
 else:
