@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 from myapp.models import *
 from django.contrib import messages
@@ -49,3 +49,13 @@ def receive_clear(request):
 		Item.objects.all().delete()
 		
 	return HttpResponseRedirect(reverse('myapp:home'))
+
+
+
+@csrf_exempt 
+def read_shopping_list(request):
+
+	current_shopping_list = list(Item.objects.values('name'))
+	print (current_shopping_list)
+		
+	return JsonResponse(current_shopping_list, safe = False)

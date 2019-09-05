@@ -1,2 +1,4 @@
 myprojectenv/*
-__pycache__/
+*__pycache__/*
+open_weather_key*
+test.py*
