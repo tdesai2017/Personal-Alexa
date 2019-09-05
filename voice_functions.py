@@ -83,7 +83,6 @@ class VoiceRobot:
         current_loc_str = current_loc_str[current_loc_str.rindex('[') + 1: current_loc_str.index(',')]
 
         #Securely accesses key
-
         f = open ('/Users/tushardesai/Documents/all_things_code/projects/Voice-Recognition/open_weather_key.txt', 'r')
         key = f.read()
         owm = pyowm.OWM(key)
@@ -94,7 +93,28 @@ class VoiceRobot:
 
         #Ex. Rain, Snow, etc.
         weather =  (str(w))
-        weather = weather[weather.find('status=') + len('status=') : weather.find(',', weather.find('status'))]
+        weather = weather[weather.find('status=') + len('status=') : weather.find(',', weather.find('status'))].lower()
+
+        status_mappings = {
+            'thunderstorm': 'thunderstorms',
+            'drizzle': 'drizzles',
+            'rain': 'rain',
+            'snow': 'snow',
+            'mist': 'misty skies',
+            'smoke': 'smokey skies',
+            'haze': 'haze',
+            'fog': 'fog',
+            'sand': 'sandy skies',
+            'dust': 'dusty skies',
+            'ash':  'ashy skies',
+            'squall': 'a squall',
+            'tornado': 'a tornado',
+            'clear': 'clear skies',
+            'clouds': 'cloudy skies'
+        }
+
+        if weather in status_mappings.keys():
+            weather = status_mappings[weather]
 
 
         temperature_info = w.get_temperature('fahrenheit')
