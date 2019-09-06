@@ -9,8 +9,9 @@ import geocoder
 #Timer
 from threading import Timer
 
-#Word to numbers
-from word2number import w2n
+# Voice requirments for timer
+from gtts import gTTS 
+import os 
 
 
 
@@ -22,7 +23,6 @@ class VoiceRobot:
         pass
 
 # Shopping list voice commands
-
     # Add a single item
     def add (self, item):
         payload = {'add': item}
@@ -125,34 +125,68 @@ class VoiceRobot:
         return weather_output
 
 
+    def start_timer_helper(self):
+        text = ''
+
+        for num in range (20):
+            text += 'alarm'
+
+
+        myobj = gTTS(text=text, lang='en', slow=False) 
+        myobj.save('response.mp3')
+        os.system("mpg321 response.mp3")
 
     #minutes and seconds will come as strings
     def start_timer(self, seconds=0, minutes=0):
         
-        try:
-            if not (seconds or minutes):
-                return 'Invalid'
+        combined_time = seconds + (minutes * 60)
 
-            if minutes:
-                minutes = w2n.word_to_num(minutes)
-                
-            if seconds:
-                seconds = w2n.word_to_num(minutes)
+        second_str = ' seconds '
+        minute_str = ' minutes '
+        timer_speech = ''
 
-            combined_time = seconds + (minutes * 60)
+        if seconds == 1:
+            second_str = ' second '
 
-            self.t = Timer(combined_time, lambda : print('Timer finished'))
-            self.t.start()
-        except:
-            return 'Invalid'
+        if minutes == 1:
+            minute_str = ' minute '
+
+
+        if seconds >= 1 and minutes >=1:
+            timer_speech = 'Timer for ' + str(minutes) + minute_str + ' and ' + str(seconds) + second_str + ' starts now:'
+
+        if seconds == 0 and minutes >= 1:
+            timer_speech = 'Timer for ' + str(minutes) + minute_str + ' starts now:'
+
+        if minutes == 0 and seconds >= 1:
+            timer_speech = 'Timer for ' + str(seconds) + second_str + ' starts now:'
+
+        myobj = gTTS(text=timer_speech, lang='en', slow=False) 
+        myobj.save('response.mp3')
+        os.system("mpg321 response.mp3")
+
+        self.t = Timer(combined_time, self.start_timer_helper)
+        self.t.start()
+
 
     def cancel_timer(self):
-        
+
         try:
             self.t.cancel()
-            print('Timer Ended')
-        except:
-            return 'There is not timer to cancel'
+            
+            myobj = gTTS(text='Timer canceled', lang='en', slow=False) 
+            myobj.save('response.mp3')
+            os.system("mpg321 response.mp3")
+
+        except Exception as e:
+            print(e)
+            myobj = gTTS(text='There is no timer to cancel', lang='en', slow=False) 
+            myobj.save('response.mp3')
+            os.system("mpg321 response.mp3")
+
+
+    
+
 
     
 
