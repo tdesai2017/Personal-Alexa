@@ -24,6 +24,14 @@ from word2number import w2n
 
 
 
+import time
+import datetime
+
+import math
+
+
+
+
 # Global Variables
 voice_controlled_timer = None
 
@@ -45,6 +53,27 @@ class VoiceCommand(ABC):
     # @abstractmethod
     # def action(self):
     #     pass
+
+
+
+#Method to aid with voice responses
+
+def respond(response):
+    myobj = gTTS(text=response, lang='en', slow=False) 
+    myobj.save('response.mp3')
+    os.system("mpg321 response.mp3")
+
+# Method to help with finding products in a string - takes words from end of command to end of string
+
+def find_products(command, text):
+    products_to_add = text[text.index(command) + len(command): len(text)]
+    if ' and ' in products_to_add: 
+        products_to_add = products_to_add.replace(' and ', ' ')
+    
+    products_to_add = products_to_add.split()
+    return products_to_add
+
+
         
 
 
@@ -52,110 +81,88 @@ class AddItemToBuy(VoiceCommand):
 
     #'add' must be the first string in the text
     def passes_condition(self, text):
-        return 'add' in text and text.index('add') == 0
+        return  'buy ' in text or 'purchase ' in text or ('add ' in text and 'to shopping list' in text)#text.index('add') == 0
 
     def voice_manipulation(self, text):
-        command = 'add'
-        voice_input = text[text.index(command) + len(command): len(text)].strip() 
-        voice_input = voice_input.capitalize()       
-        self.action(voice_input)
 
-        myobj = gTTS(text='Added ' + voice_input, lang='en', slow=False) 
-        myobj.save('response.mp3')
-        os.system("mpg321 response.mp3")
+        if 'today' in text:
+            text = text.replace('today', '')
+
+        if 'buy ' in text:
+            command = 'buy'
+
+        if 'purchase ' in text:
+            command = 'purchase'
+
+        if 'add ' in text:
+            command = 'add'
+        if 'to shopping list' in text:
+            text = text.replace('to shopping list', '')
+        products_to_add = find_products(command, text)
+
+        self.action(products_to_add)
+
+        respond('Added ' + str(products_to_add) +' to shopping list')
 
 
-    def action(self, item):
-        payload = {'add': item}
-        url = 'http://127.0.0.1:8000/home/receive_add/'
-        r = requests.post(url, data= payload)
-        print(r.status_code, r.reason)
+    def action(self, products):
+
+        for product in products: 
+
+            payload = {'add': product}
+            url = 'http://127.0.0.1:8000/myapp/receive_shopping_list_add/'
+            r = requests.post(url, data= payload)
+            print(r.status_code, r.reason)
 
 class DeleteItemToBuy(VoiceCommand):
 
     #'delete' must be the first string in the text
     def passes_condition(self, text):
-        return 'delete' in text and text.index('delete') == 0
+        return 'delete ' in text and 'from shopping list' in text or 'remove ' in text  #and text.index('delete') == 0
 
     def voice_manipulation(self, text):
-        command = 'delete'
-        voice_input = text[text.index(command) + len(command): len(text)].strip()
-        voice_input = voice_input.capitalize()       
-        self.action(voice_input)
+        if 'delete ' in text:
+            command = 'delete'
 
-        myobj = gTTS(text='Deleted ' + voice_input, lang='en', slow=False) 
-        myobj.save('response.mp3')
-        os.system("mpg321 response.mp3")
+        if 'remove ' in text:
+            command = 'remove'
+
+        text = text.replace('from shopping list', '')
+        products_to_delete = find_products(command, text)
+
+        self.action(products_to_delete)
+
+        respond('Deleted ' + str(products_to_delete))
 
         
-    def action(self, item):
-        payload = {'delete': item}
-        url = 'http://127.0.0.1:8000/home/receive_delete/'
-        r = requests.post(url, data = payload)
-        print(r.status_code, r.reason)
+    def action(self, products):
+        
+        for product in products:   
+
+            payload = {'delete': product}
+            url = 'http://127.0.0.1:8000/myapp/receive_shopping_list_delete/'
+            r = requests.post(url, data = payload)
+            print(r.status_code, r.reason)
 
 
 class ClearBuyingList(VoiceCommand):
 
     #'clear' must be the first string in the text
     def passes_condition(self, text):
-        return 'clear' in text and text.index('clear') == 0
+        return 'clear' in text and text.index('clear') == 0 and 'shopping list' in text
 
     def voice_manipulation(self, text):
         self.action()
 
-        myobj = gTTS(text='List cleared', lang='en', slow=False) 
-        myobj.save('response.mp3')
-        os.system("mpg321 response.mp3")
+        respond('Shopping List cleared')
 
         
     def action(self):
         payload = {}
-        url = 'http://127.0.0.1:8000/home/receive_clear/'
+        url = 'http://127.0.0.1:8000/myapp/receive_shopping_list_clear/'
         r = requests.post(url, data = payload)
         print(r.status_code, r.reason)
 
-
-class MultiAddToBuyingList(VoiceCommand):
-
-    #'multi add' must be the first string in the text
-    def passes_condition(self, text):
-       return 'multi add' in text and text.index('multi add') == 0
-
-    def voice_manipulation(self, text):
-        list_of_items = text.split()[2:]
-        list_of_items = [item.capitalize() for item in list_of_items]
-        self.action(list_of_items)
-
-        myobj = gTTS(text=text.replace('add', 'added'), lang='en', slow=False) 
-        myobj.save('response.mp3')
-        os.system("mpg321 response.mp3") 
-
-    def action(self, list_of_items):
-        add_command = AddItemToBuy()
-        for item in list_of_items:
-            add_command.action(item)
-
-
-class MultiDeleteFromBuyingList(VoiceCommand):
-
-    #'multi delete' must be the first string in the text
-    def passes_condition(self, text):
-       return 'multi delete' in text and text.index('multi delete') == 0
-
-    def voice_manipulation(self, text):
-        list_of_items = text.split()[2:]
-        list_of_items = [item.capitalize() for item in list_of_items]
-        self.action(list_of_items)
-
-        myobj = gTTS(text=text.replace('delete', 'deleted'), lang='en', slow=False) 
-        myobj.save('response.mp3')
-        os.system("mpg321 response.mp3") 
-
-    def action(self, list_of_items):
-        delete_command = DeleteItemToBuy()
-        for item in list_of_items:
-            delete_command.action(item)
 
 class ReadShoppingList(VoiceCommand):
 
@@ -166,13 +173,11 @@ class ReadShoppingList(VoiceCommand):
     def voice_manipulation(self, text):
         string_of_items = self.action()
 
-        mytext = 'Current list is :' + str(string_of_items)
-        myobj = gTTS(text=mytext, lang='en', slow=False) 
-        myobj.save('response.mp3')
-        os.system("mpg321 response.mp3") 
+        mytext = 'Current shopping list is :' + str(string_of_items)
+        respond(mytext)
 
     def action(self):
-        url = 'http://127.0.0.1:8000/home/read_shopping_list/'
+        url = 'http://127.0.0.1:8000/myapp/read_shopping_list/'
         r = requests.get(url)
         items = r.json()
         items_list = []
@@ -189,9 +194,7 @@ class GetMyCurrentWeather(VoiceCommand):
         
     def voice_manipulation(self, text):
         mytext = self.action()
-        myobj = gTTS(text=mytext, lang='en', slow=False) 
-        myobj.save('response.mp3')
-        os.system("mpg321 response.mp3") 
+        respond(mytext)
 
     def action(self):
         current_loc = geocoder.ip('me')
@@ -293,15 +296,11 @@ class StartTimer(VoiceCommand):
                 self.action(second_value, minute_value)
 
             else:
-                myobj = gTTS(text='Invalid Input, Try again', lang='en', slow=False) 
-                myobj.save('response.mp3')
-                os.system("mpg321 response.mp3") 
+                respond('Invalid Input, Try again')
             
         except Exception as e:
             print(e)
-            myobj = gTTS(text='Invalid Input, Try again', lang='en', slow=False) 
-            myobj.save('response.mp3')
-            os.system("mpg321 response.mp3") 
+            respond('Invalid Input, Try again')
 
     def action(self, seconds=0, minutes=0):
         global voice_controlled_timer
@@ -327,24 +326,14 @@ class StartTimer(VoiceCommand):
         if minutes == 0 and seconds >= 1:
             timer_speech = 'Timer for ' + str(seconds) + second_str + ' starts now:'
 
-        myobj = gTTS(text=timer_speech, lang='en', slow=False) 
-        myobj.save('response.mp3')
-        os.system("mpg321 response.mp3")
+        respond(timer_speech)
 
         # Starts the timer
         voice_controlled_timer = Timer(combined_time, self.start_timer_helper)
         voice_controlled_timer.start()
 
     def start_timer_helper(self):
-        text = ''
-
-        for num in range (20):
-            text += 'alarm'
-
-
-        myobj = gTTS(text=text, lang='en', slow=False) 
-        myobj.save('response.mp3')
-        os.system("mpg321 response.mp3")
+        respond('alarm alarm alarm alarm alarm alarm alarm alarm alarm alarm alarm alarm alarm alarm alarm alarm alarm alarm alarm alarm')
     
 class CancelTimer(VoiceCommand):
 
@@ -359,15 +348,139 @@ class CancelTimer(VoiceCommand):
         global voice_controlled_timer
         try:
             voice_controlled_timer.cancel()
-            
-            myobj = gTTS(text='Timer canceled', lang='en', slow=False) 
-            myobj.save('response.mp3')
-            os.system("mpg321 response.mp3")
+
+            respond('Timer Canceled')
 
         except Exception as e:
             print(e)
-            myobj = gTTS(text='There is no timer to cancel', lang='en', slow=False) 
-            myobj.save('response.mp3')
-            os.system("mpg321 response.mp3")
+            
+            respond('There is no timer to cancel')
+
+
+class GetTime(VoiceCommand):
+
+    def passes_condition(self, text):
+        return ' time'  in text 
+
+
+    def voice_manipulation(self, text):
+        self.action()
+
+    def action(self):
+        current_hour = time.strftime("%H")
+        am_or_pm = ''
+        if int(current_hour) > 12:
+            am_or_pm = 'pm'
+
+        else:
+            am_or_pm = 'am'
+
+        current_time = time.strftime("%I %M " + am_or_pm)
+
+        respond('The current time is ' + current_time)
+
+        
+
+class GetDate(VoiceCommand):
+
+    def passes_condition(self, text):
+        return ' day' in text or ' date' in text
+
+
+    def voice_manipulation(self, text):
+        self.action()
+
+    def action(self):
+        currentDT = datetime.datetime.now()
+
+        #From https://stackoverflow.com/questions/9647202/ordinal-numbers-replacement
+        ordinal = lambda n: "%d%s" % (n,"tsnrhtdd"[(math.floor(n/10)%10!=1)*(n%10<4)*n%10::4])
+        ordinal_day = str(ordinal(int(currentDT.strftime("%d"))))
+
+        day = currentDT.strftime("Today is %A, %B " + ordinal_day + ", %Y")
+        respond(day)
+
+        
+class AddReminder(VoiceCommand):
+
+    #'add' must be the first string in the text
+    def passes_condition(self, text):
+        return 'remind ' in text and 'to ' in text and not ('add ' in text or 'buy ' in text or 'purchase ' in text) or ('add ' in text and 'to reminders')#text.index('add') == 0
+
+
+    def voice_manipulation(self, text):
+
+        if 'remind ' in text:
+            command = 'to '
+
+
+        if 'to reminders' in text:
+            text = text.replace('to reminders', '')
+            command = 'add'
+
+        if 'today' in text:
+            text = text.replace('today', '')
+
+        reminder_to_add = text[text.index(command) + len(command): len(text)]
+        print (reminder_to_add)
+
+
+        self.action(reminder_to_add)
+
+        respond('Added ' + str(reminder_to_add) + ' to reminders')
+
+
+    def action(self, reminder):
+
+        payload = {'add': reminder}
+        url = 'http://127.0.0.1:8000/myapp/receive_reminders_add/'
+        r = requests.post(url, data= payload)
+        print(r.status_code, r.reason)
+
+
+class ClearReminders(VoiceCommand):
+
+    #'clear' must be the first string in the text
+    def passes_condition(self, text):
+        return 'clear' in text and text.index('clear') == 0 and 'reminders' in text
+
+    def voice_manipulation(self, text):
+        self.action()
+
+        respond('Reminders cleared')
+
+        
+    def action(self):
+        payload = {}
+        url = 'http://127.0.0.1:8000/myapp/receive_reminders_clear/'
+        r = requests.post(url, data = payload)
+        print(r.status_code, r.reason)
+
+
+class ReadReminders(VoiceCommand):
+
+    #'read reminders' must be the first string in the text
+    def passes_condition(self, text):
+        return 'read reminders' in text and text.index('read reminders') == 0
+
+    def voice_manipulation(self, text):
+        string_of_items = self.action()
+
+        mytext = 'Current reminders are :' + str(string_of_items)
+        respond(mytext)
+
+    def action(self):
+        url = 'http://127.0.0.1:8000/myapp/read_reminders/'
+        r = requests.get(url)
+        items = r.json()
+        items_list = []
+        for item in items:
+            items_list.append(item['text'] ) 
+
+        return items_list
+
+
+
+
 
 
