@@ -34,6 +34,7 @@ import math
 
 # Global Variables
 voice_controlled_timer = None
+voice_controlled_alarm = None
 
 
 class VoiceCommand(ABC):
@@ -250,7 +251,7 @@ class GetMyCurrentWeather(VoiceCommand):
 class StartTimer(VoiceCommand):
 
     def passes_condition(self, text):
-        valid_timer = ('timer' in text or "alarm" in text) and ('second' in text or 'minute' in text) and not 'cancel' in text
+        valid_timer = "alarm" in text and ('second' in text or 'minute' in text) and not 'cancel' in text
         if valid_timer and 'second' in text:
             # The timer will only be valid if there is a value for time before the units
             valid_timer = text.index('second') != 0
@@ -333,12 +334,12 @@ class StartTimer(VoiceCommand):
         voice_controlled_timer.start()
 
     def start_timer_helper(self):
-        respond('alarm alarm alarm alarm alarm alarm alarm alarm alarm alarm alarm alarm alarm alarm alarm alarm alarm alarm alarm alarm')
+        respond('timer timer timer timer timer timer timer timer timer timer timer')
     
 class CancelTimer(VoiceCommand):
 
     def passes_condition(self, text):
-        return 'cancel' in text and ('alarm' in text or 'timer' in text)
+        return 'cancel' in text and ('timer' in text)
 
 
     def voice_manipulation(self, text):
@@ -478,6 +479,156 @@ class ReadReminders(VoiceCommand):
             items_list.append(item['text'] ) 
 
         return items_list
+
+
+class CreateAlarm(VoiceCommand):
+    def passes_condition(self, text):
+        is_valid = 'alarm' in text and ('a.m.' in text or 'p.m.' in text)
+        print('I am here in creating alarms')
+
+        if is_valid:
+            if 'a.m.' in text:
+                is_valid = text.find('a.m.') != 0
+            if 'p.m.' in text:
+                is_valid = text.find('p.m.') != 0
+
+        return is_valid
+
+
+    
+    def voice_manipulation(self, text):
+
+        print ('I am kinda deep')
+
+        command = ''
+        #Hours are requred, but I want to give minutes a default value
+        minute = 0
+
+
+        if 'a.m.' in text:
+            command = 'a.m.'
+
+        if 'p.m.' in text:
+            command = 'p.m.'
+
+        split_text = text.split()
+        if ':' not in text:
+            hour = int(split_text[split_text.index(command) - 1])
+            print(hour, command)
+
+        if ':' in text:
+            split_text = text.split()
+            time = split_text[split_text.index(command) - 1]
+            hour = int(time[0:time.find(':')])
+            minute = int(time[time.find(':') + 1: len(time)])
+
+
+        try:
+            if hour >= 1 and hour <= 12:
+                if command == 'p.m.' and hour != 12:
+                    hour += 12
+
+                if command == 'a.m.' and hour == 12:
+                    hour = 0
+                    
+                self.action(command, alarm_hours = hour, alarm_minutes = minute)
+            else:
+                respond('Ivalid Input, Try Again')
+
+        except Exception as e:
+            print(e)
+            respond('Invalid Input, Try Again')
+        
+       
+    def action(self, am_or_pm, alarm_hours = 0, alarm_minutes = 0):
+        global voice_controlled_alarm
+
+        print('I am deep now')
+
+
+        current_time = datetime.datetime.now() 
+        alarm_time = datetime.datetime.now()
+        alarm_time = alarm_time.replace(second = 0, microsecond = 0)
+
+        print('TIMES:')
+        print(int(current_time.hour))
+        print(alarm_hours)
+
+        # If alarm_hours have already passed current hours, add a day
+        if current_time.hour != alarm_hours and current_time.hour > alarm_hours:
+            alarm_time = alarm_time + datetime.timedelta(days=1)
+
+        # If alarm_mintues have already passed current minutes, add a day
+        if current_time.hour == alarm_hours:
+            if current_time.minute >= alarm_minutes:
+                alarm_time = alarm_time + datetime.timedelta(days=1)
+
+
+        alarm_time = alarm_time.replace(hour = alarm_hours, minute = alarm_minutes)
+
+        seconds_difference = (alarm_time-current_time).total_seconds()
+
+        print(alarm_time)
+        print(current_time)
+        print(seconds_difference)
+
+        #  I don't want minutes mentioned when minutes == 0
+        alarm_minutes_str = int(alarm_minutes)
+        if alarm_minutes == 0:
+            alarm_minutes_str = ''
+        else:
+            alarm_minutes_str = str(alarm_minutes)
+
+
+        #Different ways of responding to am or pm inputs
+
+        if am_or_pm == 'a.m.' and alarm_hours != 0:
+            am_or_pm = am_or_pm.replace('.', "  ")
+            respond('Alarm for' + str(alarm_hours) + ' ' + alarm_minutes_str + ' ' + am_or_pm  + ' starts now')
+
+        if (am_or_pm == 'a.m.' and alarm_hours == 0) or (am_or_pm == 'p.m.' and alarm_hours == 12):
+            am_or_pm = am_or_pm.replace('.', "  ")
+            respond('Alarm for 12' + ' ' + alarm_minutes_str + ' ' + am_or_pm  + ' starts now')
+
+        if am_or_pm == 'p.m.' and alarm_hours != 12:
+            am_or_pm = am_or_pm.replace('.', "  ")
+            respond('Alarm for' + str(alarm_hours-12) + ' ' + alarm_minutes_str + ' ' + am_or_pm  + ' starts now')
+
+
+
+        print('Alarm for' + str(alarm_hours) + ' ' + str(alarm_minutes) + ' ' + am_or_pm  + ' starts now')
+        voice_controlled_alarm = Timer(seconds_difference, self.start_alarm_helper)
+        voice_controlled_alarm.start()
+        print(voice_controlled_alarm)
+
+    def start_alarm_helper(self):
+        respond('alarm alarm alarm alarm alarm alarm alarm alarm alarm alarm alarm alarm alarm alarm alarm ')
+
+
+
+
+
+
+
+
+
+
+        
+
+            
+
+
+        
+
+            
+
+        
+
+            
+
+
+
+
 
 
 
