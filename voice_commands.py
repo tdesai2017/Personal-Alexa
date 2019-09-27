@@ -36,6 +36,15 @@ import math
 voice_controlled_timer = None
 voice_controlled_alarm = None
 
+voice_controlled_timer_dict = {} 
+voice_controlled_alarm_list = []
+
+
+#Other Methods
+
+
+#voice_controlled_timer = Timer(combined_time, self.start_timer_helper)
+
 
 class VoiceCommand(ABC):
 
@@ -73,9 +82,6 @@ def find_products(command, text):
     
     products_to_add = products_to_add.split()
     return products_to_add
-
-
-        
 
 
 class AddItemToBuy(VoiceCommand):
@@ -248,10 +254,128 @@ class GetMyCurrentWeather(VoiceCommand):
         return weather_output
 
 
+# class StartTimer(VoiceCommand):
+
+#     def passes_condition(self, text):
+#         valid_timer = "timer" in text and ('second' in text or 'minute' in text) and not 'cancel' in text
+#         if valid_timer and 'second' in text:
+#             # The timer will only be valid if there is a value for time before the units
+#             valid_timer = text.index('second') != 0
+
+#         if valid_timer and 'minute' in text:
+#             valid_timer = text.index('minute') != 0
+
+#         return valid_timer
+
+#     def voice_manipulation(self, text):
+#         text_list = text.split()
+#         second_value = 0
+#         minute_value = 0
+
+#         try:
+#             if 'second' in text:
+
+#                 if 'seconds' in text:
+#                     second_value_str = text_list[text_list.index('seconds') - 1]
+
+
+#                 else:
+#                     second_value_str = text_list[text_list.index('second') - 1]
+
+
+#                 second_value = w2n.word_to_num(second_value_str)
+
+
+
+#             if 'minute' in text:
+#                 if 'minutes' in text:
+#                     minute_value_str = text_list[text_list.index('minutes') - 1]
+#                 else: 
+#                     minute_value_str = text_list[text_list.index('minute') - 1]
+
+#                 minute_value = w2n.word_to_num(minute_value_str)
+
+                
+#             # Timer cannot contain negative amounts
+#             if second_value >= 0 and minute_value >= 0 and not (second_value == 0 and minute_value == 0):
+                
+
+#                 self.action(second_value, minute_value)
+
+#             else:
+#                 respond('Invalid Input, Try again')
+            
+#         except Exception as e:
+#             print(e)
+#             respond('Invalid Input, Try again')
+
+#     def action(self, seconds=0, minutes=0):
+#         global voice_controlled_timer
+#         combined_time = seconds + (minutes * 60)
+
+#         second_str = ' seconds '
+#         minute_str = ' minutes '
+#         timer_speech = ''
+
+#         if seconds == 1:
+#             second_str = ' second '
+
+#         if minutes == 1:
+#             minute_str = ' minute '
+
+
+#         if seconds >= 1 and minutes >=1:
+#             timer_speech = 'Timer for ' + str(minutes) + minute_str + ' and ' + str(seconds) + second_str + ' starts now:'
+
+#         if seconds == 0 and minutes >= 1:
+#             timer_speech = 'Timer for ' + str(minutes) + minute_str + ' starts now:'
+
+#         if minutes == 0 and seconds >= 1:
+#             timer_speech = 'Timer for ' + str(seconds) + second_str + ' starts now:'
+
+#         respond(timer_speech)
+
+#         # Starts the timer
+#         voice_controlled_timer = Timer(combined_time, self.start_timer_helper)
+#         voice_controlled_timer.start()
+
+#     def start_timer_helper(self):
+#         respond('timer timer timer timer timer timer timer timer timer timer timer')
+    
+# class CancelTimer(VoiceCommand):
+
+#     def passes_condition(self, text):
+#         return 'cancel' in text and 'timer' in text
+
+
+#     def voice_manipulation(self, text):
+#         self.action()
+
+#     def action(self):
+#         global voice_controlled_timer
+#         try:
+#             voice_controlled_timer.cancel()
+
+#             respond('Timer Canceled')
+
+#         except Exception as e:
+#             print(e)
+            
+#             respond('There is no timer to cancel')
+
+
+
+
+
+
+
+
+
+
 class StartTimer(VoiceCommand):
 
     def passes_condition(self, text):
-        valid_timer = "alarm" in text and ('second' in text or 'minute' in text) and not 'cancel' in text
+        valid_timer = "timer" in text and ('second' in text or 'minute' in text) and (not 'cancel' in text or 'delete' in text)
         if valid_timer and 'second' in text:
             # The timer will only be valid if there is a value for time before the units
             valid_timer = text.index('second') != 0
@@ -304,7 +428,7 @@ class StartTimer(VoiceCommand):
             respond('Invalid Input, Try again')
 
     def action(self, seconds=0, minutes=0):
-        global voice_controlled_timer
+        global voice_controlled_timer_dict
         combined_time = seconds + (minutes * 60)
 
         second_str = ' seconds '
@@ -330,32 +454,164 @@ class StartTimer(VoiceCommand):
         respond(timer_speech)
 
         # Starts the timer
-        voice_controlled_timer = Timer(combined_time, self.start_timer_helper)
-        voice_controlled_timer.start()
+        t = Timer(combined_time, self.start_timer_helper)
+        voice_controlled_timer_dict[str(seconds) + ' ' + str(minutes)] = t
+        t.start()
 
     def start_timer_helper(self):
         respond('timer timer timer timer timer timer timer timer timer timer timer')
-    
+
+        
+
+
+
+
 class CancelTimer(VoiceCommand):
 
-    def passes_condition(self, text):
-        return 'cancel' in text and ('timer' in text)
+    def passes_condition(self, text):  
+        is_valid =  ('cancel' in text or 'delete' in text) and 'timer' in text and ('at ' in text or 'for ' in text) and (' minute' in text or ' second' in text)
 
+        text_list = text.split()
+
+        #Checks that valid inputs are provided
+        try:
+            if 'second' in text:
+
+                if 'seconds' in text:
+                    second_value_str = text_list[text_list.index('seconds') - 1]
+
+
+                else:
+                    second_value_str = text_list[text_list.index('second') - 1]
+
+                #If this throws an exception, then an invalid input was provided before the 'seconds' word
+                second_value = w2n.word_to_num(second_value_str)
+
+
+
+            if 'minute' in text:
+
+                if 'minutes' in text:
+                    minute_value_str = text_list[text_list.index('minutes') - 1]
+
+                else: 
+                    minute_value_str = text_list[text_list.index('minute') - 1]
+
+                minute_value = w2n.word_to_num(minute_value_str)
+
+        
+        except:
+            is_valid = False
+
+        return is_valid
 
     def voice_manipulation(self, text):
-        self.action()
+        if 'at' in text:
+            command = 'at'
 
-    def action(self):
-        global voice_controlled_timer
+        if 'for' in text:
+            command = 'for'
+
+        second_value = 0
+        minute_value = 0
+        text_list = text.split()
+
+        if 'second' in text:
+
+            if 'seconds' in text:
+                second_value_str = text_list[text_list.index('seconds') - 1]
+
+
+            else:
+                second_value_str = text_list[text_list.index('second') - 1]
+
+            second_value = w2n.word_to_num(second_value_str)
+
+
+
+        if 'minute' in text:
+
+            if 'minutes' in text:
+                minute_value_str = text_list[text_list.index('minutes') - 1]
+
+            else: 
+                minute_value_str = text_list[text_list.index('minute') - 1]
+
+            minute_value = w2n.word_to_num(minute_value_str)
+
+            
+
+        self.action(second_value, minute_value)
+
+
+    def action(self, second_value, minute_value):
+        global voice_controlled_timer_dict
+
         try:
-            voice_controlled_timer.cancel()
+            t = voice_controlled_timer_dict[str(second_value) + ' ' + str(minute_value)] 
+            t.cancel()
+            del voice_controlled_timer_dict[str(second_value) + ' ' + str(minute_value)] 
 
-            respond('Timer Canceled')
+            second_str = ' seconds '
+            minute_str = ' minutes '
+            timer_speech = ''
+
+            if second_value == 1:
+                second_str = ' second '
+
+            if minute_value == 1:
+                minute_str = ' minute '
+
+
+            if second_value >= 1 and minute_value >=1:
+                timer_speech = 'Deleted timer for ' + str(minute_value) + minute_str + ' and ' + str(second_value) + second_str
+
+            if second_value == 0 and minute_value >= 1:
+                timer_speech = 'Deleted timer for ' + str(minute_value) + minute_str 
+
+            if minute_value == 0 and second_value >= 1:
+                timer_speech = 'Deleted timer for ' + str(second_value) + second_str
+
+
+            respond(timer_speech)
 
         except Exception as e:
-            print(e)
             
-            respond('There is no timer to cancel')
+            
+            second_str = ' seconds '
+            minute_str = ' minutes '
+            timer_speech = ''
+
+            if second_value == 1:
+                second_str = ' second '
+
+            if minute_value == 1:
+                minute_str = ' minute '
+
+
+            if second_value >= 1 and minute_value >=1:
+                timer_speech = 'There is no timer for ' + str(minute_value) + minute_str + ' and ' + str(second_value) + second_str
+
+            if second_value == 0 and minute_value >= 1:
+                timer_speech = 'There is no timer for ' + str(minute_value) + minute_str 
+
+            if minute_value == 0 and second_value >= 1:
+                timer_speech = 'There is no timer for ' + str(second_value) + second_str
+            
+            respond(timer_speech )
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 class GetTime(VoiceCommand):
@@ -484,7 +740,6 @@ class ReadReminders(VoiceCommand):
 class CreateAlarm(VoiceCommand):
     def passes_condition(self, text):
         is_valid = 'alarm' in text and ('a.m.' in text or 'p.m.' in text)
-        print('I am here in creating alarms')
 
         if is_valid:
             if 'a.m.' in text:
@@ -497,8 +752,6 @@ class CreateAlarm(VoiceCommand):
 
     
     def voice_manipulation(self, text):
-
-        print ('I am kinda deep')
 
         command = ''
         #Hours are requred, but I want to give minutes a default value
@@ -542,8 +795,6 @@ class CreateAlarm(VoiceCommand):
        
     def action(self, am_or_pm, alarm_hours = 0, alarm_minutes = 0):
         global voice_controlled_alarm
-
-        print('I am deep now')
 
 
         current_time = datetime.datetime.now() 
@@ -603,6 +854,26 @@ class CreateAlarm(VoiceCommand):
 
     def start_alarm_helper(self):
         respond('alarm alarm alarm alarm alarm alarm alarm alarm alarm alarm alarm alarm alarm alarm alarm ')
+
+
+class CancelAlarm(VoiceCommand):
+        
+    def passes_condition(self, text):
+        return 'cancel' in text and 'alarm' in text
+
+    def voice_manipulation(self, text):
+        self.action()
+
+    def action(self):
+        global voice_controlled_alarm
+        try:
+            voice_controlled_alarm.cancel()
+
+            respond('Alarm Canceled')
+
+        except Exception as e:
+            print(e)
+            respond('There is no alarm to cancel')
 
 
 

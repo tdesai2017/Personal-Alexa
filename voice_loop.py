@@ -44,49 +44,47 @@ list_of_commands = [
     COMMAND_15,
     COMMAND_16]
 
-# while True:
+while True:
 
-#     r = sr.Recognizer()
-#     text = ''
-#     with sr.Microphone() as source:
-#         r.adjust_for_ambient_noise(source)
-#         print("Speak your command :")
-#         audio = r.listen(source)
-#         try:
-#             text = r.recognize_google(audio)
-#             print(text)
-#         except:
-#             print("Sorry could not recognize what you said")
+    r = sr.Recognizer()
+    text = ''
+    with sr.Microphone() as source:
+        r.adjust_for_ambient_noise(source)
+        print("Speak your command :")
+        audio = r.listen(source)
+        try:
+            text = r.recognize_google(audio)
+            print(text)
+        except:
+            print("Sorry could not recognize what you said")
 
 
-text = 'create alarm for 12:00 a.m.'
+    found_valid_command = False
+    count = 0
+    for command in list_of_commands:
+        if command.passes_condition(text):
+            command.voice_manipulation(text)
+            found_valid_command = True
+            break
 
-found_valid_command = False
-count = 0
-for command in list_of_commands:
-    if command.passes_condition(text):
-        command.voice_manipulation(text)
-        found_valid_command = True
-        break
-
-if not found_valid_command:
-    myobj = gTTS(text='Invalid Input, Try again', lang='en', slow=False) 
-    myobj.save('response.mp3')
-    os.system("mpg321 response.mp3")
+    if not found_valid_command:
+        myobj = gTTS(text='Invalid Input, Try again', lang='en', slow=False) 
+        myobj.save('response.mp3')
+        os.system("mpg321 response.mp3")
 
 
 
-                
+                    
 
-                
+                    
 
 
+                            
                         
-                    
-                    
+                        
 
 
-            
+                
 
 
 
