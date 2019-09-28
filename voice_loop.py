@@ -5,6 +5,10 @@ from gtts import gTTS
 import os 
 
 
+import time 
+
+
+
 
 
 COMMAND_1 = AddItemToBuy()
@@ -44,58 +48,81 @@ list_of_commands = [
     COMMAND_15,
     COMMAND_16]
 
-while True:
 
+
+def start_listening():
     r = sr.Recognizer()
     text = ''
     with sr.Microphone() as source:
         r.adjust_for_ambient_noise(source)
-        print("Speak your command :")
+        print("Waiting for 'Hey Alexa' :")
         audio = r.listen(source)
         try:
-            text = r.recognize_google(audio)
+            text = r.recognize_google(audio).upper()
             print(text)
+            if 'ALEXA' in text:
+                # respond('Hey Whatsup')
+                return True
+            else:
+                pass
         except:
-            print("Sorry could not recognize what you said")
+            pass
 
 
-    found_valid_command = False
-    count = 0
-    for command in list_of_commands:
-        if command.passes_condition(text):
-            command.voice_manipulation(text)
-            found_valid_command = True
-            break
+while True:
 
-    if not found_valid_command:
-        myobj = gTTS(text='Invalid Input, Try again', lang='en', slow=False) 
-        myobj.save('response.mp3')
-        os.system("mpg321 response.mp3")
-
-
-
-                    
-
-                    
+    if start_listening():    
+        r = sr.Recognizer()
+        text = ''
+        with sr.Microphone() as source:
+            r.adjust_for_ambient_noise(source)
+            print("Speak your command :")
+            #Will wait five seconds before timing out
+            try:
+                audio = r.listen(source, timeout = 5)
+                text = r.recognize_google(audio)
+                print(text)
+            except:
+                pass# print("Sorry could not recognize what you said")
 
 
+        # found_valid_command = False
+        count = 0
+        for command in list_of_commands:
+            if command.passes_condition(text):
+                command.voice_manipulation(text)
+                found_valid_command = True
+                break
+
+        # if not found_valid_command:
+        #     myobj = gTTS(text='Invalid Input, Try again', lang='en', slow=False) 
+        #     myobj.save('response.mp3')
+        #     os.system("mpg321 response.mp3")
+
+
+
+                        
+
+                        
+
+
+                                
                             
-                        
-                        
+                            
+
+
+                    
+
+
+
+
+
+
+
+
 
 
                 
-
-
-
-
-
-
-
-
-
-
-            
 
 
 
