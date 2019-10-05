@@ -87,7 +87,6 @@ while True:
 
 
         # found_valid_command = False
-        count = 0
         for command in list_of_commands:
             if command.passes_condition(text):
                 command.voice_manipulation(text)
