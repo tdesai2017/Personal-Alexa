@@ -211,10 +211,15 @@ class HotwordDetector(object):
                     message = "Keyword " + str(status) + " detected at time: "
                     message += time.strftime("%Y-%m-%d %H:%M:%S",
                                          time.localtime(time.time()))
-                    logger.info(message)
+                    # logger.info(message) #Will no longer print when a message is recieved
                     callback = detected_callback[status-1]
                     if callback is not None:
                         callback()
+
+                        #I added this so that it terminates ###################################
+                        self.terminate()
+                        return True
+                        
 
                     if audio_recorder_callback is not None:
                         state = "ACTIVE"
@@ -270,3 +275,4 @@ class HotwordDetector(object):
         self.stream_in.stop_stream()
         self.stream_in.close()
         self.audio.terminate()
+        return True

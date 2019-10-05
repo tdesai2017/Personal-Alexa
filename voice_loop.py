@@ -7,6 +7,9 @@ import os
 
 import time 
 
+from snowboy.examples.Python import snowboydecoder
+
+
 
 
 
@@ -69,9 +72,18 @@ def start_listening():
             pass
 
 
+
+def start_listening_snowboy():
+    print('Waiting for "Alexa"')
+    detector = snowboydecoder.HotwordDetector("Alexa.pmdl", sensitivity=0.6, audio_gain=1,)
+    detector.start(lambda *args: None)
+    del detector
+    return True
+
+
 while True:
 
-    if start_listening():    
+    if start_listening_snowboy():    
         r = sr.Recognizer()
         text = ''
         with sr.Microphone() as source:
@@ -113,7 +125,15 @@ while True:
                     
 
 
+# from snowboy.examples.Python import snowboydecoder
 
+
+# def detected_callback():
+#     return True
+
+
+# detector = snowboydecoder.HotwordDetector("Alexa.pmdl", sensitivity=0.5, audio_gain=1)
+# detector.start(detected_callback)
 
 
 
