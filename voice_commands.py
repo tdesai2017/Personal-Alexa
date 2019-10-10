@@ -266,7 +266,7 @@ class GetMyCurrentWeather(VoiceCommand):
 class StartTimer(VoiceCommand):
 
     def passes_condition(self, text):
-        valid_timer = "timer" in text and ('second' in text or 'minute' in text) and (not 'cancel' in text or 'delete' in text)
+        valid_timer = "timer" in text and ('second' in text or 'minute' in text) and not ('cancel' in text or 'delete' in text)
         if valid_timer and 'second' in text:
             # The timer will only be valid if there is a value for time before the units
             valid_timer = text.index('second') != 0
@@ -393,7 +393,6 @@ class CancelTimer(VoiceCommand):
 
                 minute_value = w2n.word_to_num(minute_value_str)
 
-        
         except:
             is_valid = False
 
@@ -464,6 +463,7 @@ class CancelTimer(VoiceCommand):
 
             respond(timer_speech)
 
+        #There is no timer for this
         except Exception:
             
             
@@ -488,10 +488,6 @@ class CancelTimer(VoiceCommand):
                 timer_speech = 'There is no timer for ' + str(second_value) + second_str
             
             respond(timer_speech )
-
-
-
-
 
 
 class GetTime(VoiceCommand):
@@ -542,7 +538,7 @@ class AddReminder(VoiceCommand):
 
     #'add' must be the first string in the text
     def passes_condition(self, text):
-        return 'remind ' in text and 'to ' in text and not ('add ' in text or 'buy ' in text or 'purchase ' in text) or ('add ' in text and 'to reminders')#text.index('add') == 0
+        return 'remind ' in text and 'to ' in text and not ('add ' in text or 'buy ' in text or 'purchase ' in text) or ('add ' in text and 'to reminder')#text.index('add') == 0
 
 
     def voice_manipulation(self, text):
@@ -619,7 +615,7 @@ class ReadReminders(VoiceCommand):
 
 class CreateAlarm(VoiceCommand):
     def passes_condition(self, text):
-        is_valid = 'alarm' in text and ('a.m.' in text or 'p.m.' in text)
+        is_valid = 'alarm' in text and ('a.m.' in text or 'p.m.' in text) and not ('cancel' in text or 'delete' in text)
 
         if is_valid:
             if 'a.m.' in text:
@@ -674,16 +670,12 @@ class CreateAlarm(VoiceCommand):
         
        
     def action(self, am_or_pm, alarm_hours = 0, alarm_minutes = 0):
-        global voice_controlled_alarm
+        global voice_controlled_alarm_dict
 
 
         current_time = datetime.datetime.now() 
         alarm_time = datetime.datetime.now()
         alarm_time = alarm_time.replace(second = 0, microsecond = 0)
-
-        print('TIMES:')
-        print(int(current_time.hour))
-        print(alarm_hours)
 
         # If alarm_hours have already passed current hours, add a day
         if current_time.hour != alarm_hours and current_time.hour > alarm_hours:
@@ -699,8 +691,8 @@ class CreateAlarm(VoiceCommand):
 
         seconds_difference = (alarm_time-current_time).total_seconds()
 
-        print(alarm_time)
-        print(current_time)
+        print('Alarm Time', alarm_time)
+        print('Current Time', current_time)
         print(seconds_difference)
 
         #  I don't want minutes mentioned when minutes == 0
@@ -711,9 +703,14 @@ class CreateAlarm(VoiceCommand):
             alarm_minutes_str = str(alarm_minutes)
 
 
+        hours_minutes_str = str(alarm_hours) + ' ' + str(alarm_minutes) + ' ' + am_or_pm
+        voice_controlled_alarm = Timer(seconds_difference, lambda : self.start_alarm_helper(hours_minutes_str))
+        voice_controlled_alarm_dict[hours_minutes_str] = voice_controlled_alarm
+
         #Different ways of responding to am or pm inputs
 
         if am_or_pm == 'a.m.' and alarm_hours != 0:
+            #The added space makes the voice response more fluent
             am_or_pm = am_or_pm.replace('.', "  ")
             respond('Alarm for' + str(alarm_hours) + ' ' + alarm_minutes_str + ' ' + am_or_pm  + ' starts now')
 
@@ -725,31 +722,102 @@ class CreateAlarm(VoiceCommand):
             am_or_pm = am_or_pm.replace('.', "  ")
             respond('Alarm for' + str(alarm_hours-12) + ' ' + alarm_minutes_str + ' ' + am_or_pm  + ' starts now')
 
-
-
-        print('Alarm for' + str(alarm_hours) + ' ' + str(alarm_minutes) + ' ' + am_or_pm  + ' starts now')
-        voice_controlled_alarm = Timer(seconds_difference, self.start_alarm_helper)
+        #Begins the alarm that is set above
         voice_controlled_alarm.start()
-        print(voice_controlled_alarm)
 
-    def start_alarm_helper(self):
-        respond('alarm alarm alarm alarm alarm alarm alarm alarm alarm alarm alarm alarm alarm alarm alarm ')
+    def start_alarm_helper(self, hours_minutes_str):
+        os.system("mpg321 early-sunrise.mp3")
+        del voice_controlled_alarm_dict[hours_minutes_str]
 
 
 class CancelAlarm(VoiceCommand):
         
     def passes_condition(self, text):
-        return 'cancel' in text and 'alarm' in text
+        is_valid = 'alarm' in text and ('a.m.' in text or 'p.m.' in text) and ('cancel' in text or 'delete' in text)
+
+        if is_valid:
+            if 'a.m.' in text:
+                is_valid = text.find('a.m.') != 0
+            if 'p.m.' in text:
+                is_valid = text.find('p.m.') != 0
+
+        return is_valid
 
     def voice_manipulation(self, text):
-        self.action()
+        command = ''
+        #Hours are requred, but I want to give minutes a default value
+        minute = 0
 
-    def action(self):
-        global voice_controlled_alarm
+
+        if 'a.m.' in text:
+            command = 'a.m.'
+
+        if 'p.m.' in text:
+            command = 'p.m.'
+
+        split_text = text.split()
+        if ':' not in text:
+            hour = int(split_text[split_text.index(command) - 1])
+
+        if ':' in text:
+            split_text = text.split()
+            time = split_text[split_text.index(command) - 1]
+            hour = int(time[0:time.find(':')])
+            minute = int(time[time.find(':') + 1: len(time)])
+
+
         try:
-            voice_controlled_alarm.cancel()
+            if hour >= 1 and hour <= 12:
+                if command == 'p.m.' and hour != 12:
+                    hour += 12
 
-            respond('Alarm Canceled')
+                if command == 'a.m.' and hour == 12:
+                    hour = 0
+                    
+                self.action(command, alarm_hours = hour, alarm_minutes = minute)
+
+                
+            else:
+                respond('Ivalid Input, Try Again')
+
+        except Exception as e:
+            print(e)
+            respond('Invalid Input, Try Again')
+
+    def action(self, am_or_pm, alarm_hours = 0, alarm_minutes = 0):
+        global voice_controlled_alarm_dict
+
+        try:
+            #Used to mimic key behavior 
+            hours_minutes_str = str(alarm_hours) + ' ' + str(alarm_minutes) + ' ' + am_or_pm
+            t = voice_controlled_alarm_dict[hours_minutes_str]
+            t.cancel()
+            del voice_controlled_alarm_dict[hours_minutes_str]
+
+
+    #  I don't want minutes mentioned when minutes == 0
+            alarm_minutes_str = int(alarm_minutes)
+            if alarm_minutes == 0:
+                alarm_minutes_str = ''
+            else:
+                alarm_minutes_str = str(alarm_minutes)
+
+
+            if am_or_pm == 'a.m.' and alarm_hours != 0:
+                am_or_pm = am_or_pm.replace('.', "  ")
+                respond('Alarm for' + str(alarm_hours) + ' ' + alarm_minutes_str + ' ' + am_or_pm  + ' canceled')
+
+            if (am_or_pm == 'a.m.' and alarm_hours == 0) or (am_or_pm == 'p.m.' and alarm_hours == 12):
+                am_or_pm = am_or_pm.replace('.', "  ")
+                respond('Alarm for 12' + ' ' + alarm_minutes_str + ' ' + am_or_pm  + ' canceled')
+
+            if am_or_pm == 'p.m.' and alarm_hours != 12:
+                am_or_pm = am_or_pm.replace('.', "  ")
+                respond('Alarm for' + str(alarm_hours-12) + ' ' + alarm_minutes_str + ' ' + am_or_pm  + ' canceled')
+
+
+
+            # respond('Alarm for ' + str(alarm_hours) + " " + alarm_minutes + 'canceled')
 
         except Exception as e:
             print(e)

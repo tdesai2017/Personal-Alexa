@@ -30,6 +30,7 @@ COMMAND_13 = AddReminder()
 COMMAND_14 = ClearReminders()
 COMMAND_15 = ReadReminders()
 COMMAND_16 = CreateAlarm()
+COMMAND_17 = CancelAlarm()
 
 
 # In order of preference ( as soon as one returns true, all others are ignored)
@@ -49,31 +50,35 @@ list_of_commands = [
     COMMAND_13,
     COMMAND_14,
     COMMAND_15,
-    COMMAND_16]
+    COMMAND_16,
+    COMMAND_17]
 
 
 
-def start_listening():
-    r = sr.Recognizer()
-    text = ''
-    with sr.Microphone() as source:
-        r.adjust_for_ambient_noise(source)
-        print("Waiting for 'Hey Alexa' :")
-        audio = r.listen(source)
-        try:
-            text = r.recognize_google(audio).upper()
-            print(text)
-            if 'ALEXA' in text:
-                # respond('Hey Whatsup')
-                return True
-            else:
-                pass
-        except:
-            pass
+# def start_listening():
+#     r = sr.Recognizer()
+#     text = ''
+#     with sr.Microphone() as source:
+#         r.adjust_for_ambient_noise(source)
+#         print ('Timers', voice_controlled_timer_dict)
+#         print("Waiting for 'Hey Alexa' :")
+#         audio = r.listen(source)
+#         try:
+#             text = r.recognize_google(audio).upper()
+#             print(text)
+#             if 'ALEXA' in text:
+#                 # respond('Hey Whatsup')
+#                 return True
+#             else:
+#                 pass
+#         except:
+#             pass
 
 
 
 def start_listening_snowboy():
+    print ('Alarms', voice_controlled_alarm_dict)
+    print ('Timers', voice_controlled_timer_dict)
     print('Waiting for "Alexa"')
     detector = snowboydecoder.HotwordDetector("Alexa.pmdl", sensitivity=0.6, audio_gain=1,)
     detector.start(lambda *args: None)
