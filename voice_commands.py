@@ -24,13 +24,14 @@ import speech_recognition as sr
 
 #Word to numbers
 from word2number import w2n
-
-
-
+#---
 import time
+
 import datetime
 
 import math
+
+from bs4 import BeautifulSoup
 
 
 
@@ -134,7 +135,7 @@ class DeleteItemToBuy(VoiceCommand):
 
     #'delete' must be the first string in the text
     def passes_condition(self, text):
-        return 'delete ' in text and 'from shopping list' in text or 'remove ' in text  #and text.index('delete') == 0
+        return 'delete ' in text or 'remove ' in text and 'from shopping list' in text  #and text.index('delete') == 0
 
     def voice_manipulation(self, text):
         if 'delete ' in text:
@@ -161,7 +162,7 @@ class DeleteItemToBuy(VoiceCommand):
             print(r.status_code, r.reason)
 
 
-class ClearBuyingList(VoiceCommand):
+class ClearShoppingList(VoiceCommand):
 
     #'clear' must be the first string in the text
     def passes_condition(self, text):
@@ -266,7 +267,7 @@ class GetMyCurrentWeather(VoiceCommand):
 class StartTimer(VoiceCommand):
 
     def passes_condition(self, text):
-        valid_timer = "timer" in text and ('second' in text or 'minute' in text) and not ('cancel' in text or 'delete' in text)
+        valid_timer = "timer" in text and ('second' in text or 'minute' in text) and not ('cancel' in text or 'delete' in text or 'clear' in text)
         if valid_timer and 'second' in text:
             # The timer will only be valid if there is a value for time before the units
             valid_timer = text.index('second') != 0
@@ -490,10 +491,28 @@ class CancelTimer(VoiceCommand):
             respond(timer_speech )
 
 
+class ClearTimers(VoiceCommand):
+
+#'clear' must be the first string in the text
+    def passes_condition(self, text):
+        return 'clear all' in text or 'remove all' in text or 'delete all' in text and 'timer' in text 
+
+    def voice_manipulation(self, text):
+        self.action()
+
+        respond('All Timers Cleared')
+
+        
+    def action(self):
+        global voice_controlled_timer_dict
+        voice_controlled_timer_dict.clear()
+
+
+
 class GetTime(VoiceCommand):
 
     def passes_condition(self, text):
-        return ' time'  in text 
+        return ' time'  in text and 'timer' not in text
 
 
     def voice_manipulation(self, text):
@@ -733,7 +752,7 @@ class CreateAlarm(VoiceCommand):
 class CancelAlarm(VoiceCommand):
         
     def passes_condition(self, text):
-        is_valid = 'alarm' in text and ('a.m.' in text or 'p.m.' in text) and ('cancel' in text or 'delete' in text)
+        is_valid = 'alarm' in text and ('a.m.' in text or 'p.m.' in text) and ('cancel' in text or 'delete' in text or 'remove' in text)
 
         if is_valid:
             if 'a.m.' in text:
@@ -825,11 +844,44 @@ class CancelAlarm(VoiceCommand):
 
 
 
+class ClearAlarms(VoiceCommand):
+
+#'clear' must be the first string in the text
+    def passes_condition(self, text):
+        return ('clear all' in text or 'remove all' in text or 'delete all' in text) and 'alarm' in text 
+
+    def voice_manipulation(self, text):
+        self.action()
+
+        respond('All Alarms Cleared')
+
+        
+    def action(self):
+        global voice_controlled_alarm_dict
+        voice_controlled_alarm_dict.clear()
 
 
+class CurrentMarinoCapacity(VoiceCommand):
+
+    def passes_condition(self, text):
+        text = text.upper()
+        return 'MARINO' in text or 'GYM' in text
 
 
+    def voice_manipulation(self, text):
+        percentage = self.action()
+        respond('The Marino weight room is ' + percentage + 'percent full')
 
+    def action(self):
+        url = 'https://connect2concepts.com/connect2/?type=circle&key=2A2BE0D8-DF10-4A48-BEDD-B3BC0CD628E7'
+        user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36'
+        r = requests.get(url, headers = {'User-Agent':user_agent})
+        soup = BeautifulSoup(r.text, 'html.parser')
+        weight_room_html = str(soup.findAll(class_='circleChart')[0]).split()[3]
+        weight_room_perc = weight_room_html[weight_room_html.index('"'):]
+        weight_room_perc.replace('"', '')
+        return weight_room_perc        
+        
 
 
         
@@ -844,9 +896,6 @@ class CancelAlarm(VoiceCommand):
         
 
             
-
-
-
 
 
 

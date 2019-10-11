@@ -16,7 +16,7 @@ from snowboy.examples.Python import snowboydecoder
 
 COMMAND_1 = AddItemToBuy()
 COMMAND_2 = DeleteItemToBuy()
-COMMAND_3 = ClearBuyingList()
+COMMAND_3 = ClearShoppingList()
 # COMMAND_4 = MultiAddToBuyingList()
 # COMMAND_5 = MultiDeleteFromBuyingList()
 COMMAND_6 = ReadShoppingList()
@@ -31,6 +31,9 @@ COMMAND_14 = ClearReminders()
 COMMAND_15 = ReadReminders()
 COMMAND_16 = CreateAlarm()
 COMMAND_17 = CancelAlarm()
+COMMAND_18 = ClearAlarms()
+COMMAND_19 = ClearTimers()
+COMMAND_20 = CurrentMarinoCapacity()
 
 
 # In order of preference ( as soon as one returns true, all others are ignored)
@@ -51,7 +54,10 @@ list_of_commands = [
     COMMAND_14,
     COMMAND_15,
     COMMAND_16,
-    COMMAND_17]
+    COMMAND_17,
+    COMMAND_18,
+    COMMAND_19,
+    COMMAND_20]
 
 
 
