@@ -2,3 +2,4 @@ myprojectenv/*
 *__pycache__/*
 open_weather_key*
 test.py*
+credentials*

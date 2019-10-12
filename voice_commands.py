@@ -135,7 +135,7 @@ class DeleteItemToBuy(VoiceCommand):
 
     #'delete' must be the first string in the text
     def passes_condition(self, text):
-        return 'delete ' in text or 'remove ' in text and 'from shopping list' in text  #and text.index('delete') == 0
+        return ('delete ' in text or 'remove ' in text) and 'from shopping list' in text  #and text.index('delete') == 0
 
     def voice_manipulation(self, text):
         if 'delete ' in text:
@@ -877,10 +877,9 @@ class CurrentMarinoCapacity(VoiceCommand):
         user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36'
         r = requests.get(url, headers = {'User-Agent':user_agent})
         soup = BeautifulSoup(r.text, 'html.parser')
-        weight_room_html = str(soup.findAll(class_='circleChart')[0]).split()[3]
-        weight_room_perc = weight_room_html[weight_room_html.index('"'):]
-        weight_room_perc.replace('"', '')
-        return weight_room_perc        
+        #Gets the first html element with these specifications
+        weight_room_percent = str(soup.find(class_='circleChart')['data-lastcount'])
+        return weight_room_percent
         
 
 
