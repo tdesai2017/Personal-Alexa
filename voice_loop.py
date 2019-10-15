@@ -4,14 +4,9 @@ from voice_commands import *
 from gtts import gTTS 
 import os 
 
-
 import time 
 
 from snowboy.examples.Python import snowboydecoder
-
-
-
-
 
 
 COMMAND_1 = AddItemToBuy()
@@ -34,6 +29,7 @@ COMMAND_17 = CancelAlarm()
 COMMAND_18 = ClearAlarms()
 COMMAND_19 = ClearTimers()
 COMMAND_20 = CurrentMarinoCapacity()
+COMMAND_21 = ReadNextXEvents()
 
 
 # In order of preference ( as soon as one returns true, all others are ignored)
@@ -57,7 +53,9 @@ list_of_commands = [
     COMMAND_17,
     COMMAND_18,
     COMMAND_19,
-    COMMAND_20]
+    COMMAND_20,
+    COMMAND_21
+    ]
 
 
 
@@ -110,9 +108,10 @@ while True:
 
 
         # found_valid_command = False
+        #Convert all text into lowercase values for ease of use
         for command in list_of_commands:
-            if command.passes_condition(text):
-                command.voice_manipulation(text)
+            if command.passes_condition(text.lower()):
+                command.voice_manipulation(text.lower())
                 found_valid_command = True
                 break
 

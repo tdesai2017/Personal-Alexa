@@ -1,4 +1,14 @@
 
+#Google Calendar Imports
+
+from __future__ import print_function
+import datetime
+import pickle
+import os.path
+from googleapiclient.discovery import build
+from google_auth_oauthlib.flow import InstalledAppFlow
+from google.auth.transport.requests import Request
+
 from abc import ABC,abstractmethod
 
 #Makes post requests to UI
@@ -15,15 +25,16 @@ from threading import Timer
 
 # Voice requirments for timer
 from gtts import gTTS 
+
 import os 
 
 import pyttsx3
-
 
 import speech_recognition as sr
 
 #Word to numbers
 from word2number import w2n
+
 #---
 import time
 
@@ -34,10 +45,7 @@ import math
 from bs4 import BeautifulSoup
 
 
-
-
 # Global Variables
-voice_controlled_alarm = None
 
 voice_controlled_timer_dict = {} 
 voice_controlled_alarm_dict = {}
@@ -92,6 +100,47 @@ def find_products(command, text):
     
     products_to_add = products_to_add.split()
     return products_to_add
+
+
+#Method to check whether there exist x integer values in a given text
+
+def has_x_integers(num, text):
+    num_int_values = 0
+    s = text.split()
+    for w in s: 
+            try: 
+                #Tries to convert num to a integer value
+                temp = w2n.word_to_num(w)
+                int(temp)
+                num_int_values += 1
+            except: 
+                pass 
+    return int(num) == num_int_values
+
+
+#Gets the service value for all Google Calendar API calls
+
+def get_googlecal_api_service():
+        creds = None
+        # The file token.pickle stores the user's access and refresh tokens, and is
+        # created automatically when the authorization flow completes for the first
+        # time.
+        if os.path.exists('token.pickle'):
+            with open('token.pickle', 'rb') as token:
+                creds = pickle.load(token)
+        # If there are no (valid) credentials available, let the user log in.
+        if not creds or not creds.valid:
+            if creds and creds.expired and creds.refresh_token:
+                creds.refresh(Request())
+            else:
+                flow = InstalledAppFlow.from_client_secrets_file(
+                    'credentials.json', SCOPES)
+                creds = flow.run_local_server(port=0)
+            # Save the credentials for the next run
+            with open('token.pickle', 'wb') as token:
+                pickle.dump(creds, token)
+
+        return build('calendar', 'v3', credentials=creds)
 
 
 class AddItemToBuy(VoiceCommand):
@@ -864,8 +913,7 @@ class ClearAlarms(VoiceCommand):
 class CurrentMarinoCapacity(VoiceCommand):
 
     def passes_condition(self, text):
-        text = text.upper()
-        return 'MARINO' in text or 'GYM' in text
+        return 'marino' in text or 'gym' in text
 
 
     def voice_manipulation(self, text):
@@ -880,6 +928,44 @@ class CurrentMarinoCapacity(VoiceCommand):
         #Gets the first html element with these specifications
         weight_room_percent = str(soup.find(class_='circleChart')['data-lastcount'])
         return weight_room_percent
+
+
+
+class ReadNextXEvents(VoiceCommand):
+
+    def passes_condition(self, text):
+        return has_x_integers(1, text) and ('what are' in text or 'read' in text) and 'event' in text
+        
+
+    def voice_manipulation(self, text):
+        s = text.split()
+        for w in s: 
+            try: 
+                num_events = w2n.word_to_num(w)
+                num_events = int(num_events)
+            except: 
+                pass 
+        self.action(num_events)
+                
+        
+    def action(self, num_events):
+        
+        service = get_googlecal_api_service()
+        # Call the Calendar API
+        now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
+        events_result = service.events().list(calendarId='primary', timeMin=now,
+                                            maxResults=num_events, singleEvents=True,
+                                            orderBy='startTime').execute()
+        events = events_result.get('items', [])
+
+        if not events:
+            print('No upcoming events found.')
+        for event in events:
+            start = event['start'].get('dateTime', event['start'].get('date'))
+            print(start, event['summary'])
+
+
+        
         
 
 
@@ -891,6 +977,8 @@ class CurrentMarinoCapacity(VoiceCommand):
         
 
             
+
+
 
         
 

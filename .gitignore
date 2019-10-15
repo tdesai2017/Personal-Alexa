@@ -3,3 +3,4 @@ myprojectenv/*
 open_weather_key*
 test.py*
 credentials*
+token.pickle*
