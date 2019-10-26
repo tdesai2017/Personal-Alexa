@@ -9,7 +9,7 @@ urlpatterns = [
 # /home
 path('', views.home, name = 'home'),
 
-path('shopping_list', views.shopping_list, name = 'shopping_list'),
+path('get_shopping_list_items', views.get_shopping_list_items, name = 'shopping_list'),
 path('receive_shopping_list_add/', views.receive_shopping_list_add, name = 'receive_shopping_list_add'),
 path('receive_shopping_list_delete/', views.receive_shopping_list_delete, name = 'receive_shopping_list_delete'),
 path('receive_shopping_list_clear/', views.receive_shopping_list_clear, name = 'receive_shopping_list_clear'),

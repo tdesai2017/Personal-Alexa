@@ -3,6 +3,5 @@ from myapp.models import *
 # Register your models here.
 
 
-# admin.site.register(workout)
-# admin.site.register(info)
-# admin.site.register(day)
+admin.site.register(ShoppingListItem)
+admin.site.register(Reminder)
