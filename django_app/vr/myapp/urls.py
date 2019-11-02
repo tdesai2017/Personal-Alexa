@@ -17,11 +17,11 @@ path('read_shopping_list/', views.read_shopping_list, name = 'read_shopping_list
 
 
 
-path('reminders', views.reminders, name = 'reminders'),
+path('get_reminders', views.get_reminders, name = 'get_reminders'),
 path('receive_reminders_add/', views.receive_reminders_add, name = 'receive_reminders_add'),
 path('receive_reminders_delete/', views.receive_reminders_delete, name = 'receive_reminders_delete'),
 path('receive_reminders_clear/', views.receive_reminders_clear, name = 'receive_reminders_clear'),
-path('read_reminders/', views.read_reminders, name = 'read_reminders_'),
+path('read_reminders/', views.read_reminders, name = 'read_reminders'),
 
 
 

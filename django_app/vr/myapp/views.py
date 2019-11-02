@@ -18,6 +18,7 @@ import json
 def home(request):
 	return HttpResponse('Home Page')
 
+#Serializer is just used for queries
 def get_shopping_list_items(request):
 	data = ShoppingListItem.objects.all()
 	data = serializers.serialize('json', data)
@@ -74,50 +75,53 @@ def read_shopping_list(request):
 	current_shopping_list = list(ShoppingListItem.objects.values('name'))
 	print (ShoppingListItem.objects.values('name'))
 	print (list(ShoppingListItem.objects.values('name')))
-
-
-		
 	return JsonResponse(current_shopping_list, safe = False)
-
 
 
 
 #Reminders
 
-
-
-def reminders(request):
-	context = {'items':Reminder.objects.all()}
-	return render(request, 'myapp/reminders.html', context)
-
+def get_reminders(request):
+	data = Reminder.objects.all()
+	data = serializers.serialize('json', data)
+	return HttpResponse(data)
 
 
 
 @csrf_exempt 
 def receive_reminders_add(request):
 	if request.method=='POST':
-		item_text = request.POST['add']   #.capitalize()
-		item = Reminder()
-		item.text = item_text
-		item.save()	
-	return HttpResponseRedirect(reverse('myapp:reminders'))
+		reminder_text = json.loads(request.body)['add'].capitalize()
+		if (Reminder.objects.filter(text = reminder_text)):
+			messages.warning(request, 'There is already an input with the name "' + reminder_text + '"')
+			return JsonResponse('Error ' + 'there is already an input with the name "' + reminder_text + '"', safe=False)
+		else:
+			reminder = Reminder()
+			reminder.text = reminder_text.capitalize()
+			
+			reminder.save()	
+			return JsonResponse('Reminder Added', safe=False)
 
 
 @csrf_exempt 
 def receive_reminders_delete(request):
 	if request.method=='POST':
-		item_id = request.POST['delete']
+		reminder_text = json.loads(request.body)['delete'].capitalize()
 
+		if (Reminder.objects.filter(text = reminder_text)):
+			reminder_to_delete = Reminder.objects.get(text = reminder_text)
+			reminder_to_delete.delete()
+			return JsonResponse('Reminder Deleted', safe=False)
 
-		if (Reminder.objects.filter(id = item_id)):
-			item_to_delete = Reminder.objects.get(id = item_id)
-			item_to_delete.delete()
 
 		else:
-			messages.error(request, 'Sorry, there is no reminder with the id "' + item_id + '"')
+			messages.error(request, 'Sorry, there is no item with the name "' + reminder_text + '"')
+			return JsonResponse('Error, there are no items with this name', safe=False)
 
-		
-	return HttpResponseRedirect(reverse('myapp:reminders'))
+
+
+
+
 
 
 @csrf_exempt 
@@ -125,7 +129,7 @@ def receive_reminders_clear(request):
 	if request.method=='POST':
 		Reminder.objects.all().delete()
 		
-	return HttpResponseRedirect(reverse('myapp:reminders'))
+	return JsonResponse('Reminders Cleared', safe=False)
 
 
 
