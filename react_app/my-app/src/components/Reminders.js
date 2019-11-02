@@ -56,7 +56,8 @@ submitAdd(event) {
     if (data === 'Reminder Added'){
         this.setState(prevState => { return{
             // I am automatically making it uppercase as well
-            allReminders: prevState.allReminders.concat(prevState.addValue.charAt(0).toUpperCase() + prevState.addValue.substring(1))
+            allReminders: prevState.allReminders.concat(prevState.addValue.charAt(0).toUpperCase() + prevState.addValue.substring(1)),
+            addValue: ''
         }
          })
     }

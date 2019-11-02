@@ -54,7 +54,9 @@ submitAdd(event) {
     if (data === 'Item Added'){
         this.setState(prevState => { return{
             // I am automatically making it uppercase as well
-            allShoppingListItems: prevState.allShoppingListItems.concat(prevState.addValue.charAt(0).toUpperCase() + prevState.addValue.substring(1))
+            allShoppingListItems: prevState.allShoppingListItems.concat(prevState.addValue.charAt(0).toUpperCase() + prevState.addValue.substring(1)),
+            addValue: ''
+
         }
          })
     }

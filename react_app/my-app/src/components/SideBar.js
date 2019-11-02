@@ -1,7 +1,6 @@
 import React from "react";
 import Sidebar from "react-sidebar";
-import { Redirect } from 'react-router-dom'
-
+import { Link } from 'react-router-dom';
 
 
 
@@ -10,16 +9,17 @@ class SidebarWrapper extends React.Component {
     super(props);
     this.state = {
       sidebarOpen: true,
-      shoppingList : 'basic', // can also be 'basic' or 'hovered'
-      reminders : 'basic',
-      timers : 'basic',
-      alarms: 'basic',
-      camera: 'basic'
+      shoppingListHovered : false, // can also be 'basic' or 'hovered'
+      remindersHovered : false,
+      timersHovered : false,
+      alarmsHovered: false,
+      cameraHovered: false
     
     }
     this.onSetSidebarOpen = this.onSetSidebarOpen.bind(this);
     this.toggleHover = this.toggleHover.bind(this)
     this.toggleLeave = this.toggleLeave.bind(this)
+    // this.routeChange = this.routeChange.bind(this)
   }
 
   onSetSidebarOpen(open) {
@@ -29,31 +29,32 @@ class SidebarWrapper extends React.Component {
 
   toggleHover(event){
 
-    this.setState({[event.target.getAttribute('name')] : 'hovered' }) 
+    this.setState({[event.target.getAttribute('name') + 'Hovered'] : true }) 
 
   }
 
   toggleLeave(event){
-    this.setState({[event.target.getAttribute('name')] : 'basic' })
+    this.setState({[event.target.getAttribute('name') + 'Hovered'] : false })
       
   }
 
-  handleSubmit(event) {
-      console.log('hebloo')
-      return <Redirect to='/gasdf' />      
-  }
+  // routeChange(event) {
+  //   let path = `shopping-cart`;
+  //   // this.props.history.push(path);
+  // }
 
   
 
   render() {
+    const linkStyle = {textDecoration : 'none'}
     var hoveredStyle = { cursor: 'pointer', fontSize: '140%', marginTop: '10px', marginBottom: '10px', marginLeft: '30px', color: '#42bcf4', fontFamily : "Brush Script MT"}
     var basicStyle = { cursor: 'pointer', marginTop: '10px', marginBottom: '10px', marginLeft: '30px', color : 'grey'} 
 
-    const shoppingListStyle = this.state.shoppingList === 'hovered' ? hoveredStyle : basicStyle
-    const remindersStyle = this.state.reminders === 'hovered' ?  hoveredStyle : basicStyle
-    const timersStyle = this.state.timers === 'hovered' ? hoveredStyle : basicStyle
-    const alarmsStyle = this.state.alarms === 'hovered' ? hoveredStyle : basicStyle
-    const CameraStyle = this.state.camera === 'hovered' ? hoveredStyle : basicStyle
+    const shoppingListStyle = this.state.shoppingListHovered ? hoveredStyle : basicStyle
+    const remindersStyle = this.state.remindersHovered ?  hoveredStyle : basicStyle
+    const timersStyle = this.state.timersHovered ? hoveredStyle : basicStyle
+    const alarmsStyle = this.state.alarmsHovered ? hoveredStyle : basicStyle
+    const CameraStyle = this.state.cameraHovered ? hoveredStyle : basicStyle
 
     return (
       <Sidebar
@@ -69,13 +70,14 @@ class SidebarWrapper extends React.Component {
 
 
                 <div style = {{display: 'flex', flexDirection: 'column', }}>
+
                         <div style = {{marginTop:'20px', marginBottom: '10px'}}>
-                        <strong onClick= {this.handleSubmit}  name = 'shoppingList' style = {shoppingListStyle} onMouseEnter={this.toggleHover} onMouseLeave={this.toggleLeave} >Shopping List &#10095; </strong>
+                        <Link to='shopping-cart' style = {linkStyle}> <strong name = 'shoppingList' style = {shoppingListStyle} onMouseEnter={this.toggleHover} onMouseLeave={this.toggleLeave}>Shopping List &#10095;</strong> </Link>
                         </div>
 
                         <hr style = {{width:'100%'}}/>
 
-                        <strong name = 'reminders' style = {remindersStyle} onMouseEnter={this.toggleHover} onMouseLeave={this.toggleLeave} >Reminders &#10095;</strong>
+                        <Link to = 'reminders' style = {linkStyle}><strong name = 'reminders' style = {remindersStyle} onMouseEnter={this.toggleHover} onMouseLeave={this.toggleLeave} >Reminders &#10095;</strong></Link>
 
                         <hr style = {{width:'100%'}}/>
 

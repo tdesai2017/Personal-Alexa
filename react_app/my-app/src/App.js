@@ -17,10 +17,12 @@ function App() {
   return (
     <React.Fragment>
       
-      <Layout>
-        <SideBar/>
-        
+  
       <Router>
+      <Layout>
+
+      <SideBar/>
+
         <Switch>
 
           <Route exact path="/shopping-cart" component = {ShoppingCart}/>
@@ -32,8 +34,9 @@ function App() {
 
 
         </Switch>
+        </Layout>
+
       </Router>
-      </Layout>
       
     </React.Fragment>
     
