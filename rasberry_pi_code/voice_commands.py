@@ -637,7 +637,7 @@ class AddReminder(VoiceCommand):
 
         payload = {'add': reminder}
         url = 'http://127.0.0.1:8000/myapp/receive_reminders_add/'
-        r = requests.post(url, data= payload)
+        r = requests.post(url, data= json.dumps(payload))
         print(r.status_code, r.reason)
 
 
