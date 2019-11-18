@@ -273,7 +273,7 @@ class GetMyCurrentWeather(VoiceCommand):
         current_loc_str = current_loc_str[current_loc_str.rindex('[') + 1: current_loc_str.index(',')]
 
         #Securely accesses key
-        f = open ('/Users/tushardesai/Documents/all_things_code/projects/Voice-Recognition/open_weather_key.txt', 'r')
+        f = open ('/Users/tushardesai/Documents/all_things_code/projects/Personal-Alexa/rasberry_pi_code/open_weather_key.txt', 'r')
         key = f.read()
         owm = pyowm.OWM(key)
         observation = owm.weather_at_coords(current_latlong[0],current_latlong[1])

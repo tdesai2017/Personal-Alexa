@@ -29,7 +29,7 @@ COMMAND_17 = CancelAlarm()
 COMMAND_18 = ClearAlarms()
 COMMAND_19 = ClearTimers()
 COMMAND_20 = CurrentMarinoCapacity()
-COMMAND_21 = ReadNextXEvents()
+# COMMAND_21 = ReadNextXEvents()
 
 
 # In order of preference ( as soon as one returns true, all others are ignored)
@@ -54,7 +54,7 @@ list_of_commands = [
     COMMAND_18,
     COMMAND_19,
     COMMAND_20,
-    COMMAND_21
+    # COMMAND_21
     ]
 
 
