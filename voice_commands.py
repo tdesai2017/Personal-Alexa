@@ -8,7 +8,7 @@ import os.path
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
-
+import json
 from abc import ABC,abstractmethod
 
 #Makes post requests to UI
@@ -177,7 +177,7 @@ class AddItemToBuy(VoiceCommand):
 
             payload = {'add': product}
             url = 'http://127.0.0.1:8000/myapp/receive_shopping_list_add/'
-            r = requests.post(url, data= payload)
+            r = requests.post(url, data= json.dumps(payload))
             print(r.status_code, r.reason)
 
 class DeleteItemToBuy(VoiceCommand):
@@ -207,7 +207,7 @@ class DeleteItemToBuy(VoiceCommand):
 
             payload = {'delete': product}
             url = 'http://127.0.0.1:8000/myapp/receive_shopping_list_delete/'
-            r = requests.post(url, data = payload)
+            r = requests.post(url, data = json.dumps(payload))
             print(r.status_code, r.reason)
 
 
@@ -226,7 +226,7 @@ class ClearShoppingList(VoiceCommand):
     def action(self):
         payload = {}
         url = 'http://127.0.0.1:8000/myapp/receive_shopping_list_clear/'
-        r = requests.post(url, data = payload)
+        r = requests.post(url, data = json.dumps(payload))
         print(r.status_code, r.reason)
 
 
@@ -606,7 +606,7 @@ class AddReminder(VoiceCommand):
 
     #'add' must be the first string in the text
     def passes_condition(self, text):
-        return 'remind ' in text and 'to ' in text and not ('add ' in text or 'buy ' in text or 'purchase ' in text) or ('add ' in text and 'to reminder')#text.index('add') == 0
+        return 'remind ' in text and 'to ' in text and not ('add ' in text or 'buy ' in text or 'purchase ' in text) or ('add ' in text and 'to reminder' in text)#text.index('add') == 0
 
 
     def voice_manipulation(self, text):
@@ -654,7 +654,7 @@ class ClearReminders(VoiceCommand):
     def action(self):
         payload = {}
         url = 'http://127.0.0.1:8000/myapp/receive_reminders_clear/'
-        r = requests.post(url, data = payload)
+        r = requests.post(url, data = json.dumps(payload))
         print(r.status_code, r.reason)
 
 

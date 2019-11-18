@@ -1,5 +1,4 @@
 import React from 'react'
-import cloneDeep from 'lodash/cloneDeep'
 
 
 class Reminders extends React.Component{
@@ -36,7 +35,9 @@ handleAddChange(event){
 
 
 submitAdd(event) {
+    //Prevents default refreshing of the page due to buttons
     event.preventDefault()
+    
     console.log(this.state.allReminders.concat(this.state.addValue))
     if (this.state.addValue != ''){
 

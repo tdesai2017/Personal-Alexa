@@ -5,21 +5,22 @@ import {BrowserRouter as Router, Route, Switch } from 'react-router-dom'
 // import About from './components/About'
 import NoMatch from './components/NoMatch'
 // import Contact from './components/Contact'
-import Layout from './style_components/Layout'
-import SideBarStyle from './style_components/SideBarStyle'
 import SideBar from './components/SideBar'
 import ShoppingCart from './components/ShoppingCart'
 import Reminders from './components/Reminders'
+import { Container } from 'react-bootstrap'
 
 
 
 function App() {
   return (
+  
     <React.Fragment>
-      
+
+    <Container>
   
       <Router>
-      <Layout>
+      <Container>
 
       <SideBar/>
 
@@ -34,9 +35,10 @@ function App() {
 
 
         </Switch>
-        </Layout>
+        </Container>
 
       </Router>
+      </Container>
       
     </React.Fragment>
     

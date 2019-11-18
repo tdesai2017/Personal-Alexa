@@ -29,7 +29,6 @@ def receive_shopping_list_add(request):
 	if request.method=='POST':
 		item_name = json.loads(request.body)['add'].capitalize()
 		if (ShoppingListItem.objects.filter(name = item_name)):
-			messages.warning(request, 'There is already an input with the name "' + item_name + '"')
 			return JsonResponse('Error ' + 'there is already an input with the name "' + item_name + '"', safe=False)
 		else:
 			item = ShoppingListItem()
